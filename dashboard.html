@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plutiply - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #1a1f3a;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo-section {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .logo-section h2 {
+            color: #4CAF50;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .logo-section p {
+            color: #888;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .menu-section h3 {
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 25px 0 15px 15px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            margin-bottom: 5px;
+            border-radius: 12px;
+            color: #aaa;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+        }
+
+        .menu-item.active {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .menu-item span {
+            margin-left: 12px;
+            font-size: 15px;
+        }
+
+        .user-profile {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 12px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4CAF50, #FFC107);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .user-info {
+            margin-left: 12px;
+            flex: 1;
+        }
+
+        .user-info h4 {
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+        }
+
+        .greeting h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .greeting p {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-box {
+            background: #1a1f3a;
+            padding: 10px 18px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            width: 200px;
+        }
+
+        .icon-btn {
+            width: 45px;
+            height: 45px;
+            background: #1a1f3a;
+            border: none;
+            border-radius: 10px;
+            color: #aaa;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .icon-btn:hover {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #1a1f3a;
+            padding: 25px;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #4CAF50, #FFC107);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .mini-chart {
+            height: 50px;
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .mini-chart span {
+            flex: 1;
+            background: rgba(76, 175, 80, 0.3);
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s ease;
+        }
+
+        .mini-chart span:hover {
+            background: #4CAF50;
+        }
+
+        /* Quick Transfer Section */
+        .quick-transfer {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(76, 175, 80, 0.05));
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .quick-transfer h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .recent-contacts {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .contact-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4CAF50, #FFC107);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .contact-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .transfer-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-input {
+            background: rgba(10, 14, 39, 0.6);
+            border: 1px solid rgba(76, 175, 80, 0.2);
+            padding: 14px;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .form-input::placeholder {
+            color: #666;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #1a1f3a 0%, #0a0e27 100%);
+            color: white;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            border-color: #4CAF50;
+        }
+
+        /* Transaction History */
+        .transaction-card {
+            background: #1a1f3a;
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 20px;
+        }
+
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .transaction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: rgba(10, 14, 39, 0.4);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-item:hover {
+            background: rgba(76, 175, 80, 0.05);
+            transform: translateX(5px);
+        }
+
+        .transaction-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(76, 175, 80, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 15px;
+        }
+
+        .transaction-details {
+            flex: 1;
+        }
+
+        .transaction-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .transaction-time {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .transaction-amount {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .amount-positive {
+            color: #4CAF50;
+        }
+
+        .amount-negative {
+            color: #f44336;
+        }
+
+        .transaction-status {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-success {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+        }
+
+        .status-failed {
+            background: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 20px 10px;
+            }
+
+            .sidebar .logo-section p,
+            .sidebar .menu-section h3,
+            .sidebar .menu-item span,
+            .sidebar .user-info {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 70px;
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .transfer-form {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-section">
+                <h2>Plutiply</h2>
+                <p>Your Reliable Transaction Partner</p>
+            </div>
+
+            <nav>
+                <div class="menu-section">
+                    <a href="javascript:void(0)" class="menu-item active">
+                        <span>🏠</span>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="javascript:void(0)" class="menu-item">
+                        <span>💰</span>
+                        <span>My Wallet</span>
+                    </a>
+                    <a href="javascript:void(0)" class="menu-item">
+                        <span>📱</span>
+                        <span>Buy Airtime</span>
+                    </a>
+                    <a href="javascript:void(0)" class="menu-item">
+                        <span>📊</span>
+                        <span>Buy Data</span>
+                    </a>
+                    <a href="javascript:void(0)" class="menu-item">
+                        <span>📺</span>
+                        <span>Cable TV</span>
+                    </a>
+                    <a href="javascript:void(0)" class="menu-item">
+                        <span>⚡</span>
+                        <span>Electricity</span>
+                    </a>
+                    <a href="javascript:void(0)" class="menu-item">
+                        <span>🎓</span>
+                        <span>Exam Pins</span>
+                    </a>
+                </div>
+
+                <div class="menu-section">
+                    <h3>Analytics</h3>
+                    <a href="javascript:void(0)" class="menu-item">
+                        <span>📈</span>
+                        <span>Statistics</span>
+                    </a>
+                    <a href="javascript:void(0)" class="menu-item">
+                        <span>📉</span>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="javascript:void(0)" class="menu-item">
+                        <span>🎁</span>
+                        <span>Referrals</span>
+                    </a>
+                </div>
+
+                <div class="menu-section">
+                    <h3>Support</h3>
+                    <a href="javascript:void(0)" class="menu-item">
+                        <span>💬</span>
+                        <span>Support</span>
+                    </a>
+                    <a href="javascript:void(0)" class="menu-item">
+                        <span>⚙️</span>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="user-profile">
+                <div class="user-avatar">U</div>
+                <div class="user-info">
+                    <h4>User</h4>
+                    <p>Member</p>
+                </div>
+            </div>
+
+            <div class="menu-section">
+                <a href="javascript:void(0)" class="menu-item" id="logoutBtn">
+                    <span>🚪</span>
+                    <span>Log-Out</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="greeting">
+                    <h1>Hi, User!</h1>
+                    <p>Dashboard</p>
+                </div>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                    <button class="icon-btn">🔔</button>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-label">
+                            💰 Wallet Balance
+                        </div>
+                        <div class="stat-change">+0.0%</div>
+                    </div>
+                    <div class="stat-value">₵0.00</div>
+                    <div class="mini-chart">
+                        <span style="height: 40%"></span>
+                        <span style="height: 55%"></span>
+                        <span style="height: 35%"></span>
+                        <span style="height: 70%"></span>
+                        <span style="height: 45%"></span>
+                        <span style="height: 85%"></span>
+                        <span style="height: 60%"></span>
+                        <span style="height: 90%"></span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-label">
+                            📊 Total Spending
+                        </div>
+                        <div class="stat-change">+0.0%</div>
+                    </div>
+                    <div class="stat-value">₵0.00</div>
+                    <div class="mini-chart">
+                        <span style="height: 60%"></span>
+                        <span style="height: 45%"></span>
+                        <span style="height: 70%"></span>
+                        <span style="height: 55%"></span>
+                        <span style="height: 80%"></span>
+                        <span style="height: 50%"></span>
+                        <span style="height: 65%"></span>
+                        <span style="height: 75%"></span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-label">
+                            💸 Spending Goal
+                        </div>
+                        <div class="stat-change" style="background: rgba(255, 193, 7, 0.1); color: #FFC107;">+0.0%</div>
+                    </div>
+                    <div class="stat-value">₵0.00</div>
+                    <div class="mini-chart">
+                        <span style="height: 50%"></span>
+                        <span style="height: 65%"></span>
+                        <span style="height: 40%"></span>
+                        <span style="height: 75%"></span>
+                        <span style="height: 55%"></span>
+                        <span style="height: 85%"></span>
+                        <span style="height: 60%"></span>
+                        <span style="height: 95%"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Transfer -->
+            <div class="quick-transfer">
+                <h3>Quick Transfer</h3>
+                <div class="recent-contacts">
+                    <div class="contact-avatar" title="Contact 1">C1</div>
+                    <div class="contact-avatar" title="Contact 2">C2</div>
+                    <div class="contact-avatar" title="Contact 3">C3</div>
+                    <div class="contact-avatar" title="Contact 4">C4</div>
+                </div>
+                <div class="transfer-form">
+                    <input type="text" class="form-input" placeholder="Account number or phone">
+                    <input type="number" class="form-input" placeholder="Amount (₵)">
+                    <button class="send-btn">SEND</button>
+                </div>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="transaction-card">
+                <div class="transaction-header">
+                    <h3>Transaction History</h3>
+                    <button class="icon-btn">⋯</button>
+                </div>
+                <div class="transaction-list">
+                    <p style="text-align: center; color: #888; padding: 20px;">No transactions yet</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+
+        // Check authentication on page load
+        async function checkAuth() {
+            const token = localStorage.getItem('plutiply_token');
+            const user = localStorage.getItem('plutiply_user');
+
+            if (!token || !user) {
+                window.location.href = 'main.html';
+                return;
+            }
+
+            loadUserData(JSON.parse(user));
+            await fetchUserProfile(token);
+        }
+
+        function loadUserData(user) {
+            const userName = user.fullName || 'User';
+            const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+            
+            document.querySelector('.user-avatar').textContent = initials;
+            document.querySelector('.user-info h4').textContent = userName;
+            document.querySelector('.greeting h1').textContent = `Hi, ${userName.split(' ')[0]}!`;
+            
+            const walletBalance = parseFloat(user.walletBalance || 0).toFixed(2);
+            document.querySelector('.stat-value').textContent = `₵${walletBalance}`;
+        }
+
+        async function fetchUserProfile(token) {
+            try {
+                const response = await fetch(`${API_URL}/auth/profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        localStorage.setItem('plutiply_user', JSON.stringify(data.data));
+                        loadUserData(data.data);
+                    }
+                } else if (response.status === 401 || response.status === 403) {
+                    logout();
+                }
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('plutiply_token');
+                localStorage.removeItem('plutiply_user');
+                window.location.href = 'main.html';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            document.querySelector('.send-btn').addEventListener('click', function() {
+                const inputs = document.querySelectorAll('.transfer-form .form-input');
+                const account = inputs[0].value.trim();
+                const amount = inputs[1].value.trim();
+                
+                if (!account || !amount) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+                
+                alert(`Transfer of ₵${amount} to ${account} - Feature coming soon!`);
+                inputs[0].value = '';
+                inputs[1].value = '';
+            });
+
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (this.id === 'logoutBtn') return;
+                    
+                    const text = this.textContent.trim();
+                    if (text === 'Dashboard') return;
+                    
+                    e.preventDefault();
+                    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    alert(`${text} - Feature coming soon!`);
+                });
+            });
+
+            checkAuth();
+        });
+    </script>
+</body>
+</html>
