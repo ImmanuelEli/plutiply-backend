@@ -60,12 +60,18 @@ const createTables = async () => {
     CREATE TABLE IF NOT EXISTS wallet_transactions (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-      type VARCHAR(20) NOT NULL,
-      amount DECIMAL(10, 2) NOT NULL,
-      balance_after DECIMAL(10, 2) NOT NULL,
+      transaction_type VARCHAR(50) NOT NULL,
+      amount DECIMAL(15, 2) NOT NULL,
+      balance_before DECIMAL(15, 2) NOT NULL,
+      balance_after DECIMAL(15, 2) NOT NULL,
       description TEXT,
-      reference VARCHAR(100) UNIQUE,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      reference VARCHAR(100) UNIQUE NOT NULL,
+      status VARCHAR(20) DEFAULT 'pending',
+      payment_method VARCHAR(50),
+      payment_reference VARCHAR(255),
+      metadata JSONB,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `;
 
@@ -120,6 +126,60 @@ const createTables = async () => {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `;
+  const createFloatAccountTable = `
+    CREATE TABLE IF NOT EXISTS float_account (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      account_name VARCHAR(100) NOT NULL,
+      provider VARCHAR(50) NOT NULL,
+      balance DECIMAL(15, 2) DEFAULT 0.00,
+      total_inflow DECIMAL(15, 2) DEFAULT 0.00,
+      total_outflow DECIMAL(15, 2) DEFAULT 0.00,
+      last_reconciled TIMESTAMP,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+
+  const createLedgerEntriesTable = `
+    CREATE TABLE IF NOT EXISTS ledger_entries (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      transaction_id UUID REFERENCES wallet_transactions(id),
+      entry_type VARCHAR(20) NOT NULL,
+      debit_account VARCHAR(50),
+      credit_account VARCHAR(50),
+      amount DECIMAL(15, 2) NOT NULL,
+      description TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+
+  const createVendorPurchasesTable = `
+    CREATE TABLE IF NOT EXISTS vendor_purchases (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_id UUID REFERENCES users(id),
+      transaction_id UUID REFERENCES wallet_transactions(id),
+      vendor_name VARCHAR(100) NOT NULL,
+      service_type VARCHAR(50) NOT NULL,
+      amount DECIMAL(10, 2) NOT NULL,
+      vendor_reference VARCHAR(255),
+      status VARCHAR(20) DEFAULT 'pending',
+      metadata JSONB,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+
+  const createIdempotencyKeysTable = `
+    CREATE TABLE IF NOT EXISTS idempotency_keys (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      key VARCHAR(255) UNIQUE NOT NULL,
+      user_id UUID REFERENCES users(id),
+      endpoint VARCHAR(255) NOT NULL,
+      response JSONB,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      expires_at TIMESTAMP NOT NULL
+    );
+  `;
 
   try {
     await pool.query(createUsersTable);
@@ -129,6 +189,17 @@ const createTables = async () => {
     await pool.query(createServicesTable);
     await pool.query(createPricingTable);
     await pool.query(createAdminTable);
+    await pool.query(createFloatAccountTable);
+    await pool.query(createLedgerEntriesTable);
+    await pool.query(createVendorPurchasesTable);
+    await pool.query(createIdempotencyKeysTable);
+    
+    // Initialize float account if doesn't exist
+    await pool.query(`
+      INSERT INTO float_account (account_name, provider, balance)
+      VALUES ('Main Float Account', 'Paystack', 0.00)
+      ON CONFLICT DO NOTHING
+    `);
     console.log("✅ All database tables created successfully");
   } catch (error) {
     console.error("❌ Error creating tables:", error.message);

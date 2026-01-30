@@ -4,6 +4,7 @@ require("dotenv").config();
 const { createTables } = require("./config/database");
 const authRoutes = require("./routes/authRoutes");
 const pinRoutes = require("./routes/pinRoutes");
+const walletRoutes = require('./routes/walletRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/pin", pinRoutes);
+app.use('/api/wallet', walletRoutes);
 
 // Health check route
 app.get("/api/health", (req, res) => {
